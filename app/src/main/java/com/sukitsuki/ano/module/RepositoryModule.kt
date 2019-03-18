@@ -3,12 +3,11 @@ package com.sukitsuki.ano.module
 import com.google.gson.GsonBuilder
 import com.sukitsuki.ano.AppConst
 import com.sukitsuki.ano.AppDatabase
-import com.sukitsuki.ano.MainApplication
+import com.sukitsuki.ano.repository.BackendRepository
 import com.sukitsuki.ano.repository.CookieRepository
 import dagger.Module
 import dagger.Provides
 import io.reactivex.disposables.CompositeDisposable
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
@@ -26,11 +25,11 @@ class RepositoryModule {
 
   @Singleton
   @Provides
-  fun providesOkHttpClient(cookieRepository: CookieRepository, app: MainApplication): OkHttpClient {
-    val cacheSize = 10 * 1024 * 1024L // 10MB
+//  fun providesOkHttpClient(cookieRepository: CookieRepository, app: MainApplication): OkHttpClient {
+  fun providesOkHttpClient(): OkHttpClient {
     val builder = OkHttpClient.Builder()
-      .cache(Cache(app.applicationContext.cacheDir, cacheSize))
-      .cookieJar(cookieRepository)
+//      .cache(Cache(app.applicationContext.cacheDir, cacheSize))
+//      .cookieJar(cookieRepository)
       .addInterceptor(HttpLoggingInterceptor().apply { level = BASIC })
       .readTimeout(30, TimeUnit.SECONDS)
     return builder.build()
@@ -50,9 +49,9 @@ class RepositoryModule {
       .build()
   }
 
-//  @Singleton
-//  @Provides
-//  fun providesTbbRepository(retrofit: Retrofit): TbbRepository = retrofit.create(TbbRepository::class.java)
+  @Singleton
+  @Provides
+  fun providesBackendRepository(retrofit: Retrofit): BackendRepository = retrofit.create(BackendRepository::class.java)
 
   @Singleton
   @Provides
