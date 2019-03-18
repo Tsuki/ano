@@ -27,7 +27,9 @@ class BackendRepositoryTest {
 
   @Test
   fun testIndex() {
-    repository.index().subscribe(::println)
+    repository.index()
+      .doOnError(::println)
+      .subscribe(::println)
   }
 }
 
