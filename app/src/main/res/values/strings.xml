@@ -1,3 +1,16 @@
 <resources>
   <string name="app_name">ano</string>
+  <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+  <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+
+
+  <string name="nav_header_title">Guest</string>
+  <string name="nav_header_desc">Navigation header</string>
+
+  <string name="menu_anime_list">Gallery</string>
+  <string name="menu_preference">Preference</string>
+  <string name="menu_favorite">Favorite</string>
+  <string name="menu_history">History</string>
+  <string name="menu_download">Download</string>
+  <string name="menu_setting">Setting</string>
 </resources>

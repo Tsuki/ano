@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="colorPrimary">#008577</color>
-  <color name="colorPrimaryDark">#00574B</color>
+  <!--<color name="colorPrimary">#008577</color>-->
+  <!--<color name="colorPrimaryDark">#00574B</color>-->
   <color name="colorAccent">#D81B60</color>
 
-  <color name="primaryColor">#2962ff</color>
-  <color name="primaryLightColor">#768fff</color>
-  <color name="primaryDarkColor">#0039cb</color>
+  <color name="black_overlay">#66000000</color>
+  <color name="transparent">#00FFFFFF</color>
+
+  <color name="primaryColor">#7b1fa2</color>
+  <color name="primaryLightColor">#ae52d4</color>
+  <color name="primaryDarkColor">#4a0072</color>
+  <color name="secondaryColor">#ea80fc</color>
+  <color name="secondaryLightColor">#ffb2ff</color>
+  <color name="secondaryDarkColor">#b64fc8</color>
   <color name="primaryTextColor">#ffffff</color>
+  <color name="secondaryTextColor">#000000</color>
 </resources>

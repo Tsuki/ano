@@ -19,7 +19,7 @@ android {
             annotationProcessorOptions {
                 arguments = [
                         "room.schemaLocation": "$projectDir/schemas".toString(),
-                        "androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()
+//                        "androidManifestFile": "$projectDir/src/main/AndroidManifest.xml".toString()
                 ]
             }
         }

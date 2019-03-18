@@ -11,10 +11,10 @@
     android:roundIcon="@mipmap/ic_launcher_round"
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
-    <activity android:name=".activity.PreferenceActivity"></activity>
     <activity
       android:name=".MainActivity"
-      android:screenOrientation="portrait">
+      android:screenOrientation="portrait"
+      android:theme="@style/AppTheme.NoActionBar">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
@@ -31,6 +31,9 @@
           android:scheme="https" />
       </intent-filter>
     </activity>
+    <activity
+      android:name=".activity.PreferenceActivity"
+      android:theme="@style/AppTheme.NoActionBar" />
   </application>
 
 </manifest>
