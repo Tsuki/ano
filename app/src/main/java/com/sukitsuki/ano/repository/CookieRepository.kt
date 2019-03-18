@@ -3,19 +3,14 @@ package com.sukitsuki.ano.repository
 import com.sukitsuki.ano.dao.CookieDao
 import com.sukitsuki.ano.entity.Cookie
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.addTo
 import io.reactivex.schedulers.Schedulers
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import timber.log.Timber
 
 
-class CookieRepository(
-  private val cookieDao: CookieDao,
-  private val compositeDisposable: CompositeDisposable
-) : CookieJar {
+class CookieRepository(private val cookieDao: CookieDao) : CookieJar {
 
   private var cookies: Map<String, List<okhttp3.Cookie>> =
     cookieDao.getAll().blockingFirst().map(Cookie::toOkHttpCookie).groupBy(okhttp3.Cookie::domain)
@@ -33,7 +28,7 @@ class CookieRepository(
       .map { it.map(Cookie::toOkHttpCookie) }
       .map { it.groupBy(okhttp3.Cookie::domain) }
       .onErrorReturn { emptyMap() }
-      .subscribe { cookies = it }.addTo(compositeDisposable)
+      .subscribe { cookies = it }
   }
 
   private fun saveCookieToSQLite(cookies: List<okhttp3.Cookie>) {

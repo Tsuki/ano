@@ -1,13 +1,15 @@
 package com.sukitsuki.ano.module
 
+import android.app.Application
 import com.google.gson.GsonBuilder
 import com.sukitsuki.ano.AppConst
-import com.sukitsuki.ano.AppDatabase
+import com.sukitsuki.ano.AppConst.cacheSize
+import com.sukitsuki.ano.dao.CookieDao
 import com.sukitsuki.ano.repository.BackendRepository
 import com.sukitsuki.ano.repository.CookieRepository
 import dagger.Module
 import dagger.Provides
-import io.reactivex.disposables.CompositeDisposable
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level.BASIC
@@ -37,6 +39,10 @@ class RepositoryModule {
 
   @Singleton
   @Provides
+  fun providesOkHttpCache(app: Application): Cache = Cache(app.applicationContext.cacheDir, cacheSize)
+
+  @Singleton
+  @Provides
   fun providesRetrofit(httpClient: OkHttpClient): Retrofit {
     return Retrofit.Builder()
       // Show primitive/String Type
@@ -55,16 +61,6 @@ class RepositoryModule {
 
   @Singleton
   @Provides
-  fun providesCookieRepository(database: AppDatabase, compositeDisposable: CompositeDisposable): CookieRepository =
-    CookieRepository(database.cookieDao(), compositeDisposable)
-
-//  @Singleton
-//  @Provides
-//  fun providesFavoriteRepository(database: AppDatabase): FavoriteRepository =
-//    FavoriteRepository(database.favoriteDao())
-
-  @Singleton
-  @Provides
-  fun providesCompositeDisposable(): CompositeDisposable = CompositeDisposable()
+  fun providesCookieRepository(cookieDao: CookieDao): CookieRepository = CookieRepository(cookieDao)
 
 }

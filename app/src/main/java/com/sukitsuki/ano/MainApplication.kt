@@ -1,6 +1,7 @@
 package com.sukitsuki.ano
 
 import com.sukitsuki.ano.module.AppModule
+import com.sukitsuki.ano.module.DaoModule
 import com.sukitsuki.ano.module.RepositoryModule
 import dagger.android.AndroidInjectionModule
 import dagger.android.AndroidInjector
@@ -16,6 +17,7 @@ class MainApplication : DaggerApplication() {
       AndroidInjectionModule::class
       , AppModule::class
       , RepositoryModule::class
+      , DaoModule::class
     ]
   )
   interface Component : AndroidInjector<MainApplication> {
