@@ -1,5 +1,6 @@
 package com.sukitsuki.ano
 
+import androidx.appcompat.app.AppCompatDelegate
 import com.sukitsuki.ano.module.AppModule
 import com.sukitsuki.ano.module.DaoModule
 import com.sukitsuki.ano.module.RepositoryModule
@@ -34,6 +35,7 @@ class MainApplication : DaggerApplication() {
 
   override fun onCreate() {
     super.onCreate()
+    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
     Timber.plant(Timber.DebugTree())
   }
 }
