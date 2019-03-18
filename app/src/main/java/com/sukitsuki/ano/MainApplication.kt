@@ -1,6 +1,7 @@
 package com.sukitsuki.ano
 
 import androidx.appcompat.app.AppCompatDelegate
+import com.sukitsuki.ano.module.ActivityModule
 import com.sukitsuki.ano.module.AppModule
 import com.sukitsuki.ano.module.DaoModule
 import com.sukitsuki.ano.module.RepositoryModule
@@ -17,6 +18,7 @@ class MainApplication : DaggerApplication() {
     modules = [
       AndroidInjectionModule::class
       , AppModule::class
+      , ActivityModule::class
       , RepositoryModule::class
       , DaoModule::class
     ]

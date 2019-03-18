@@ -5,8 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.sukitsuki.ano.R
+import com.sukitsuki.ano.utils.ViewModelFactory
+import timber.log.Timber
+import javax.inject.Inject
 
 class HomeFragment : Fragment() {
 
@@ -14,7 +18,12 @@ class HomeFragment : Fragment() {
     fun newInstance() = HomeFragment()
   }
 
-  private lateinit var viewModel: HomeViewModel
+  @Inject
+  lateinit var viewModeFactory: ViewModelFactory
+
+  private val viewModel: HomeViewModel by lazy {
+    ViewModelProviders.of(this, viewModeFactory).get(HomeViewModel::class.java)
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
@@ -25,8 +34,7 @@ class HomeFragment : Fragment() {
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
-    // TODO: Use the ViewModel
+    viewModel.favorites.observe(this, Observer { Timber.i("${it[0]}") })
   }
 
 }
