@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.sukitsuki.ano.R
 import com.sukitsuki.ano.utils.ViewModelFactory
+import dagger.android.AndroidInjector
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -16,6 +17,12 @@ class HomeFragment : Fragment() {
 
   companion object {
     fun newInstance() = HomeFragment()
+  }
+
+  @dagger.Subcomponent(modules = [])
+  interface Component : AndroidInjector<HomeFragment> {
+    @dagger.Subcomponent.Builder
+    abstract class Builder : AndroidInjector.Builder<HomeFragment>()
   }
 
   @Inject
