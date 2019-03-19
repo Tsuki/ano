@@ -11,6 +11,7 @@ import com.sukitsuki.ano.R
 import com.sukitsuki.ano.activity.AnimDetailActivity
 import com.sukitsuki.ano.adapter.AnimListAdapter
 import com.sukitsuki.ano.utils.ViewModelFactory
+import com.sukitsuki.ano.viewmodel.HomeViewModel
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.home_fragment.*
