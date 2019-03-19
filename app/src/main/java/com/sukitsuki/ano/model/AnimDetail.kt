@@ -7,7 +7,10 @@ import pl.droidsonroids.jspoon.annotation.Selector
 @Parcelize
 data class AnimDetail(
   @Selector("article")
-  var article: List<AnimEpisode> = emptyList()
+  var article: List<AnimEpisode> = emptyList(),
+
+  @Selector("div.nav-previous > a")
+  var hasNext: String = ""
 ) : Parcelable
 
 @Parcelize
