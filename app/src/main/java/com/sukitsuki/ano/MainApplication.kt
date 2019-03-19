@@ -19,6 +19,7 @@ class MainApplication : DaggerApplication() {
       , FragmentModule::class
       , RepositoryModule::class
       , DaoModule::class
+      , ExoPlayerModule::class
     ]
   )
   interface Component : AndroidInjector<MainApplication> {

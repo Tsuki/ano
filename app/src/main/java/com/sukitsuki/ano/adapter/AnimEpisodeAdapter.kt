@@ -6,10 +6,16 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.sukitsuki.ano.model.AnimEpisode
+import com.sukitsuki.ano.model.AnimFrame
+import com.sukitsuki.ano.repository.BackendRepository
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 
-class AnimEpisodeAdapter : RecyclerView.Adapter<AnimEpisodeAdapter.ViewHolder>() {
-  lateinit var onItemClick: ((AnimEpisode) -> Unit)
+class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
+  RecyclerView.Adapter<AnimEpisodeAdapter.ViewHolder>() {
+  lateinit var onItemClick: ((AnimFrame) -> Unit)
   var dataSet: List<AnimEpisode> = emptyList()
 
   fun loadDataSet(newDataSet: List<AnimEpisode>) {
@@ -35,7 +41,11 @@ class AnimEpisodeAdapter : RecyclerView.Adapter<AnimEpisodeAdapter.ViewHolder>()
 
     init {
       itemView.setOnClickListener {
-        onItemClick.invoke(dataSet[adapterPosition])
+        backendRepository.animVideo(dataSet[adapterPosition].url)
+          .subscribeOn(Schedulers.io())
+          .observeOn(AndroidSchedulers.mainThread())
+          .doOnError { Timber.w(it) }
+          .subscribe { onItemClick.invoke(it) }
       }
     }
   }
