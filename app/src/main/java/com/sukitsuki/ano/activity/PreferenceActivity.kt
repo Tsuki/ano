@@ -1,11 +1,11 @@
 package com.sukitsuki.ano.activity
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import com.sukitsuki.ano.R
 import dagger.android.AndroidInjector
+import dagger.android.support.DaggerAppCompatActivity
 
-class PreferenceActivity : AppCompatActivity() {
+class PreferenceActivity : DaggerAppCompatActivity() {
   @dagger.Subcomponent(modules = [])
   interface Component : AndroidInjector<PreferenceActivity> {
 

@@ -1,6 +1,7 @@
 package com.sukitsuki.ano.module
 
 import com.sukitsuki.ano.MainActivity
+import com.sukitsuki.ano.activity.AnimDetailActivity
 import com.sukitsuki.ano.activity.PreferenceActivity
 import dagger.Binds
 import dagger.Module
@@ -13,6 +14,7 @@ import dagger.multibindings.IntoMap
   subcomponents = [
     MainActivity.Component::class
     , PreferenceActivity.Component::class
+    , AnimDetailActivity.Component::class
   ]
 )
 abstract class ActivityModule {
@@ -26,5 +28,10 @@ abstract class ActivityModule {
   @IntoMap
   @ClassKey(PreferenceActivity::class)
   abstract fun bindPreferenceActivity(builder: PreferenceActivity.Component.Builder): AndroidInjector.Factory<*>
+
+  @Binds
+  @IntoMap
+  @ClassKey(AnimDetailActivity::class)
+  abstract fun bindAnimDetailActivity(builder: AnimDetailActivity.Component.Builder): AndroidInjector.Factory<*>
 
 }

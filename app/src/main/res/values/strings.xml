@@ -14,4 +14,7 @@
   <string name="menu_download">Download</string>
   <string name="menu_setting">Setting</string>
   <string name="placeholder">placeholder</string>
+  <string name="title_activity_anim_detail">AnimDetailActivity</string>
+  <string name="large_text">Material is the metaphor</string>
+  <string name="action_settings">Settings</string>
 </resources>

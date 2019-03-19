@@ -8,11 +8,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sukitsuki.ano.R
+import com.sukitsuki.ano.activity.AnimDetailActivity
 import com.sukitsuki.ano.adapter.AnimListAdapter
 import com.sukitsuki.ano.utils.ViewModelFactory
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.home_fragment.*
+import org.jetbrains.anko.support.v4.intentFor
 import javax.inject.Inject
 
 class HomeFragment : DaggerFragment() {
@@ -37,9 +39,7 @@ class HomeFragment : DaggerFragment() {
   private val animListAdapter by lazy {
     AnimListAdapter(requireContext()).apply {
       this.onItemClick = { it ->
-        //        val intent = Intent(context, AnimeDetailActivity::class.java)
-//        intent.putExtra("animeList", it)
-//        startActivity(intent)
+        startActivity(intentFor<AnimDetailActivity>("animList" to it))
       }
     }
   }

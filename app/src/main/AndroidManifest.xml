@@ -12,6 +12,10 @@
     android:supportsRtl="true"
     android:theme="@style/AppTheme">
     <activity
+      android:name=".activity.AnimDetailActivity"
+      android:label="@string/title_activity_anim_detail"
+      android:theme="@style/AppTheme.NoActionBar"></activity>
+    <activity
       android:name=".MainActivity"
       android:screenOrientation="portrait"
       android:theme="@style/AppTheme.NoActionBar">
