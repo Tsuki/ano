@@ -1,6 +1,8 @@
 package com.sukitsuki.ano.repository
 
+import com.sukitsuki.ano.model.Anim
 import com.sukitsuki.ano.module.RepositoryModule
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,6 +30,20 @@ class BackendRepositoryTest {
   @Test
   fun testIndex() {
     repository.index()
+      .doOnError(::println)
+      .doOnNext { println(it.list[0].getCat()) }
+      .subscribe(::println)
+  }
+
+  @Test
+  fun testAnim() {
+    val tmp = Anim(href = "/?cat=497")
+    Assert.assertEquals("497", tmp.getCat())
+  }
+
+  @Test
+  fun testAnimDetail() {
+    repository.animDetail("497")
       .doOnError(::println)
       .subscribe(::println)
   }

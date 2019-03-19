@@ -1,12 +1,17 @@
 package com.sukitsuki.ano.repository
 
+import com.sukitsuki.ano.model.AnimDetail
 import com.sukitsuki.ano.model.AnimList
 import io.reactivex.Observable
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface BackendRepository {
 
   @GET("/")
   fun index(): Observable<AnimList>
+
+  @GET("/")
+  fun animDetail(@Query("cat") cat: String): Observable<AnimDetail>
 
 }

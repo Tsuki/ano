@@ -30,4 +30,13 @@ data class Anim(
 
   @Selector("td.column-5")
   var fanSubGroup: String = ""
-) : Parcelable
+) : Parcelable {
+  fun getCat(): String? {
+    val regex = "/\\?cat=(\\d+)".toRegex()
+    val matchResult = regex.find(this.href)
+    return matchResult?.let {
+      val (cat: String) = matchResult.destructured
+      return cat
+    }
+  }
+}
