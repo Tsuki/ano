@@ -8,7 +8,7 @@
   tools:context=".activity.AnimDetailActivity">
 
   <com.google.android.material.appbar.AppBarLayout
-    android:id="@+id/app_bar"
+    android:id="@+id/anim_app_bar"
     android:layout_width="match_parent"
     android:layout_height="@dimen/app_bar_height"
     android:fitsSystemWindows="true"
@@ -21,10 +21,10 @@
       android:fitsSystemWindows="true"
       app:contentScrim="?attr/colorPrimary"
       app:layout_scrollFlags="scroll|exitUntilCollapsed"
-      app:toolbarId="@+id/toolbar">
+      app:toolbarId="@id/toolbar">
 
       <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
+        android:id="@id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         app:layout_collapseMode="pin"
@@ -40,7 +40,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/fab_margin"
-    app:layout_anchor="@id/app_bar"
+    app:layout_anchor="@id/anim_app_bar"
     app:layout_anchorGravity="bottom|end"
     app:srcCompat="@android:drawable/ic_dialog_email" />
 

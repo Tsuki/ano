@@ -54,7 +54,7 @@ class HomeFragment : DaggerFragment() {
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     homeRefreshLayout.setOnRefreshListener { viewModel.fetchData() }
-    animeListView.apply {
+    animListView.apply {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
       adapter = animListAdapter
