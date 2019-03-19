@@ -47,5 +47,12 @@ class BackendRepositoryTest {
       .doOnError(::println)
       .subscribe(::println)
   }
+
+  @Test
+  fun testAnimVideo() {
+    repository.animVideo("https://i.animeone.me/UUKn3")
+      .doOnError(::println)
+      .subscribe(::println)
+  }
 }
 
