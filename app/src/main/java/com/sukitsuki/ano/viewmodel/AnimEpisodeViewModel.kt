@@ -19,6 +19,24 @@ class AnimEpisodeViewModel @Inject constructor(private val repository: BackendRe
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doOnError { Timber.w(it) }
-      .subscribe { this.episode.value = it.article }
+      .subscribe {
+        this.episode.value = it.article
+        if (it.hasNext != "") {
+          fetchNext(it.url)
+        }
+      }
+  }
+
+  private fun fetchNext(url: String): Disposable? {
+    return repository.animDetailNext(url)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .doOnError { Timber.w(it) }
+      .subscribe {
+        this.episode.value = this.episode.value?.plus(it.article)
+        if (it.hasNext != "") {
+          fetchNext(it.url)
+        }
+      }
   }
 }

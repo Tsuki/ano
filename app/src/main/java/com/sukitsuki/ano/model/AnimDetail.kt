@@ -10,7 +10,10 @@ data class AnimDetail(
   var article: List<AnimEpisode> = emptyList(),
 
   @Selector("div.nav-previous > a")
-  var hasNext: String = ""
+  var hasNext: String = "",
+
+  @Selector("div.nav-previous > a", attr = "href")
+  var url: String = ""
 ) : Parcelable
 
 @Parcelize

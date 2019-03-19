@@ -18,6 +18,9 @@ interface BackendRepository {
   fun animDetail(@Query("cat") cat: String): Observable<AnimDetail>
 
   @GET
+  fun animDetailNext(@Url url: String): Observable<AnimDetail>
+
+  @GET
   fun animVideo(@Url url: String): Observable<AnimFrame>
 
 }
