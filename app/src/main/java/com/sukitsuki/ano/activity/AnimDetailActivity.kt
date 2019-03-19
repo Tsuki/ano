@@ -11,7 +11,6 @@ import com.google.android.exoplayer2.source.hls.DefaultHlsExtractorFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.google.android.material.snackbar.Snackbar
 import com.sukitsuki.ano.R
 import com.sukitsuki.ano.adapter.AnimEpisodeAdapter
 import com.sukitsuki.ano.model.Anim
@@ -21,7 +20,6 @@ import com.sukitsuki.ano.viewmodel.AnimEpisodeViewModel
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_anim_detail.*
-import kotlinx.android.synthetic.main.content_anim_detail.*
 import org.jetbrains.anko.longToast
 import timber.log.Timber
 import javax.inject.Inject
@@ -50,7 +48,7 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     AnimEpisodeAdapter(backendRepository).apply {
       this.onItemClick = { it ->
         Timber.i("$it")
-        replace(it.source)
+        if (it.source != "") replace(it.source)
       }
     }
   }
@@ -62,10 +60,10 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     toolbar.title = animList.title
     setSupportActionBar(toolbar)
 
-    fab.setOnClickListener { view ->
-      Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-        .setAction("Action", null).show()
-    }
+//    fab.setOnClickListener { view ->
+//      Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//        .setAction("Action", null).show()
+//    }
     playerView.player = simpleExoPlayer
 
     animEpisodeList.apply {
@@ -87,8 +85,9 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
       .setExtractorFactory(defaultHlsExtractorFactory)
       .setAllowChunklessPreparation(true)
       .createMediaSource(Uri.parse(url))
-
+    simpleExoPlayer.playWhenReady = true
     simpleExoPlayer.prepare(hlsMediaSource)
+
     Timber.d("replace: $url")
   }
 }
