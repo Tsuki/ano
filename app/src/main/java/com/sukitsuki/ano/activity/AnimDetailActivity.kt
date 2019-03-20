@@ -2,11 +2,15 @@ package com.sukitsuki.ano.activity
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.MenuItem
+import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory
+import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.hls.DefaultHlsExtractorFactory
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
@@ -23,6 +27,7 @@ import kotlinx.android.synthetic.main.activity_anim_detail.*
 import org.jetbrains.anko.longToast
 import timber.log.Timber
 import javax.inject.Inject
+
 
 class AnimDetailActivity : DaggerAppCompatActivity() {
 
@@ -47,8 +52,11 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
   private val animEpisodeAdapter by lazy {
     AnimEpisodeAdapter(backendRepository).apply {
       this.onItemClick = { it ->
-        if (it.source != "") replace(it.source)
-        else longToast("Cannot load source")
+        when {
+          it.source != "" -> replace(it.source)
+          it.poster2 != "" -> replaceMp4(it.source2)
+          else -> longToast("Cannot load source")
+        }
       }
     }
   }
@@ -59,6 +67,8 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     setContentView(R.layout.activity_anim_detail)
     toolbar.title = animList.title
     setSupportActionBar(toolbar)
+    val supportActionBar = supportActionBar
+    supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 //    fab.setOnClickListener { view ->
 //      Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -76,6 +86,26 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     viewModel.episode.observe(this, Observer { animEpisodeAdapter.loadDataSet(it) })
   }
 
+  override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    when (item?.itemId) {
+      // Use android.R.id rather than packaged id
+      android.R.id.home -> {
+        onBackPressed()
+        return true
+      }
+      else -> {
+        Timber.d("itemId${item?.itemId?.let { resources.getResourceName(it).split("\\/") }}")
+      }
+    }
+    return super.onOptionsItemSelected(item)
+  }
+
+  override fun finish() {
+    Timber.i("finished")
+    simpleExoPlayer.stop(true)
+    super.finish()
+  }
+
   private fun replace(url: String) {
     val httpDataSourceFactory = DefaultHttpDataSourceFactory(Util.getUserAgent(applicationContext, "ano"), null)
     httpDataSourceFactory.defaultRequestProperties.set("Referer", "https://anime1.me/")
@@ -87,6 +117,18 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
       .createMediaSource(Uri.parse(url))
     simpleExoPlayer.playWhenReady = true
     simpleExoPlayer.prepare(hlsMediaSource)
+
+    Timber.d("replace: $url")
+  }
+
+  private fun replaceMp4(url: String) {
+    val httpDataSourceFactory = DefaultHttpDataSourceFactory(Util.getUserAgent(applicationContext, "ano"), null)
+    httpDataSourceFactory.defaultRequestProperties.set("Referer", "https://anime1.me/")
+    val extractorsFactory = DefaultExtractorsFactory()
+    val mediaSource = ExtractorMediaSource.Factory(httpDataSourceFactory)
+      .setExtractorsFactory(extractorsFactory).createMediaSource(url.toUri())
+    simpleExoPlayer.playWhenReady = true
+    simpleExoPlayer.prepare(mediaSource)
 
     Timber.d("replace: $url")
   }
