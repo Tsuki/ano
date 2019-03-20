@@ -1,7 +1,6 @@
 package com.sukitsuki.ano.activity
 
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -11,6 +10,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import butterknife.ButterKnife
+import butterknife.OnClick
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory
@@ -29,10 +30,8 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_anim_detail.*
 import org.jetbrains.anko.longToast
-import org.jetbrains.anko.toast
 import timber.log.Timber
 import javax.inject.Inject
-
 
 class AnimDetailActivity : DaggerAppCompatActivity() {
 
@@ -84,14 +83,29 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     super.onCreate(savedInstanceState)
     animList = intent.getParcelableExtra("animList")
     setContentView(R.layout.activity_anim_detail)
-    toolbar.title = animList.title
-    setSupportActionBar(toolbar)
-    val supportActionBar = supportActionBar
-    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    ButterKnife.bind(this)
+    when (requestedOrientation) {
+      ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE -> {
+        Timber.i("SCREEN_ORIENTATION_LANDSCAPE")
+        mHidePart2Runnable.run()
+      }
+      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+        Timber.i("SCREEN_ORIENTATION_PORTRAIT")
+      }
+      else -> {
+        Timber.i("requestedOrientation:$requestedOrientation")
+      }
+    }
+    toolbar?.let {
+      toolbar?.title = animList.title
+      setSupportActionBar(toolbar)
+      val supportActionBar = supportActionBar
+      supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
 
     playerView.player = simpleExoPlayer
 
-    animEpisodeList.apply {
+    animEpisodeList?.apply {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(context)
       adapter = animEpisodeAdapter
@@ -121,6 +135,31 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     super.finish()
   }
 
+  @OnClick(R.id.exo_fullscreen_icon)
+  fun fullscreen() {
+    when (requestedOrientation) {
+      ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE -> {
+        Timber.i("SCREEN_ORIENTATION_LANDSCAPE")
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        mHidePart2Runnable.run()
+      }
+      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+        Timber.i("SCREEN_ORIENTATION_PORTRAIT")
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+      }
+      else -> {
+        Timber.i("requestedOrientation:$requestedOrientation")
+      }
+    }
+  }
+
+  override fun onBackPressed() {
+    if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+      fullscreen()
+    else
+      super.onBackPressed()
+  }
+
   private fun replace(url: String) {
     val httpDataSourceFactory = DefaultHttpDataSourceFactory(Util.getUserAgent(applicationContext, "ano"), null)
     httpDataSourceFactory.defaultRequestProperties.set("Referer", "https://anime1.me/")
@@ -148,24 +187,4 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     Timber.d("replace: $url")
   }
 
-  override fun onConfigurationChanged(newConfig: Configuration?) {
-    if (newConfig == null) return
-    when (newConfig.orientation) {
-      ActivityInfo.SCREEN_ORIENTATION_USER -> {
-        Timber.i("SCREEN_ORIENTATION_LANDSCAPE")
-        mHidePart2Runnable.run()
-        supportActionBar?.hide()
-      }
-      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-        Timber.i("SCREEN_ORIENTATION_PORTRAIT")
-        mShowPart2Runnable.run()
-        supportActionBar?.show()
-      }
-      else -> {
-        toast("newConfig.orientation: ${newConfig.orientation}")
-      }
-    }
-
-    super.onConfigurationChanged(newConfig)
-  }
 }
