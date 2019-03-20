@@ -30,6 +30,7 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_anim_detail.*
 import org.jetbrains.anko.longToast
+import org.jetbrains.anko.sdk27.coroutines.onSystemUiVisibilityChange
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -50,6 +51,7 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
   lateinit var simpleExoPlayer: SimpleExoPlayer
 
   private val mHideHandler = Handler()
+  private val mHideRunnable = Runnable { mHideHandler.postDelayed(mHidePart2Runnable, 300L) }
   private val mHidePart2Runnable = Runnable {
     activity_anim_detail.systemUiVisibility = (
       View.SYSTEM_UI_FLAG_LOW_PROFILE
@@ -58,9 +60,6 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
 //        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 //        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
       )
-  }
-  private val mShowPart2Runnable = Runnable {
-    activity_anim_detail.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
   }
 
   private val viewModel: AnimEpisodeViewModel by lazy {
@@ -84,22 +83,16 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     animList = intent.getParcelableExtra("animList")
     setContentView(R.layout.activity_anim_detail)
     ButterKnife.bind(this)
-    when (requestedOrientation) {
-      ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE -> {
-        Timber.i("SCREEN_ORIENTATION_LANDSCAPE")
-        mHidePart2Runnable.run()
-      }
-      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
-        Timber.i("SCREEN_ORIENTATION_PORTRAIT")
-      }
-      else -> {
-        Timber.i("requestedOrientation:$requestedOrientation")
-      }
+
+    window.decorView.onSystemUiVisibilityChange {
+      if ((it and View.SYSTEM_UI_FLAG_FULLSCREEN) == 0
+        && requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+      ) delayedHide()
     }
+
     toolbar?.let {
-      toolbar?.title = animList.title
-      setSupportActionBar(toolbar)
-      val supportActionBar = supportActionBar
+      it.title = animList.title
+      setSupportActionBar(it)
       supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
@@ -113,6 +106,27 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
 
     animList.getCat()?.let { viewModel.fetchData(it) } ?: run { longToast("Can't get cat") }
     viewModel.episode.observe(this, Observer { animEpisodeAdapter.loadDataSet(it) })
+  }
+
+  override fun onPostCreate(savedInstanceState: Bundle?) {
+    super.onPostCreate(savedInstanceState)
+    when (requestedOrientation) {
+      ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE -> {
+        Timber.i("SCREEN_ORIENTATION_LANDSCAPE")
+        delayedHide()
+      }
+      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+        Timber.i("SCREEN_ORIENTATION_PORTRAIT")
+      }
+      else -> {
+        Timber.i("requestedOrientation:$requestedOrientation")
+      }
+    }
+  }
+
+  private fun delayedHide(uiAnimationDelay: Long = 1000L) {
+    mHideHandler.removeCallbacks(mHideRunnable)
+    mHideHandler.postDelayed(mHideRunnable, uiAnimationDelay)
   }
 
   override fun onOptionsItemSelected(item: MenuItem?): Boolean {
