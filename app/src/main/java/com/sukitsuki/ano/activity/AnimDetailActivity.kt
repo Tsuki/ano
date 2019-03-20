@@ -1,8 +1,12 @@
 package com.sukitsuki.ano.activity
 
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.view.MenuItem
+import android.view.View
 import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -25,6 +29,7 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_anim_detail.*
 import org.jetbrains.anko.longToast
+import org.jetbrains.anko.toast
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -44,6 +49,20 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
   lateinit var backendRepository: BackendRepository
   @Inject
   lateinit var simpleExoPlayer: SimpleExoPlayer
+
+  private val mHideHandler = Handler()
+  private val mHidePart2Runnable = Runnable {
+    activity_anim_detail.systemUiVisibility = (
+      View.SYSTEM_UI_FLAG_LOW_PROFILE
+        or View.SYSTEM_UI_FLAG_FULLSCREEN
+//        or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//        or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+//        or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+      )
+  }
+  private val mShowPart2Runnable = Runnable {
+    activity_anim_detail.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+  }
 
   private val viewModel: AnimEpisodeViewModel by lazy {
     ViewModelProviders.of(this, viewModeFactory).get(AnimEpisodeViewModel::class.java)
@@ -70,10 +89,6 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     val supportActionBar = supportActionBar
     supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-//    fab.setOnClickListener { view ->
-//      Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//        .setAction("Action", null).show()
-//    }
     playerView.player = simpleExoPlayer
 
     animEpisodeList.apply {
@@ -131,5 +146,26 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
     simpleExoPlayer.prepare(mediaSource)
 
     Timber.d("replace: $url")
+  }
+
+  override fun onConfigurationChanged(newConfig: Configuration?) {
+    if (newConfig == null) return
+    when (newConfig.orientation) {
+      ActivityInfo.SCREEN_ORIENTATION_USER -> {
+        Timber.i("SCREEN_ORIENTATION_LANDSCAPE")
+        mHidePart2Runnable.run()
+        supportActionBar?.hide()
+      }
+      ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+        Timber.i("SCREEN_ORIENTATION_PORTRAIT")
+        mShowPart2Runnable.run()
+        supportActionBar?.show()
+      }
+      else -> {
+        toast("newConfig.orientation: ${newConfig.orientation}")
+      }
+    }
+
+    super.onConfigurationChanged(newConfig)
   }
 }
