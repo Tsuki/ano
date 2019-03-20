@@ -41,7 +41,12 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
 
     init {
       itemView.setOnClickListener {
-        backendRepository.animVideo(dataSet[adapterPosition].url)
+        val url = dataSet[adapterPosition].url
+        if (url == "") {
+          onItemClick.invoke(AnimFrame())
+          return@setOnClickListener
+        }
+        backendRepository.animVideo(url)
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .doOnError { Timber.w(it) }

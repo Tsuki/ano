@@ -47,8 +47,8 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
   private val animEpisodeAdapter by lazy {
     AnimEpisodeAdapter(backendRepository).apply {
       this.onItemClick = { it ->
-        Timber.i("$it")
         if (it.source != "") replace(it.source)
+        else longToast("Cannot load source")
       }
     }
   }
