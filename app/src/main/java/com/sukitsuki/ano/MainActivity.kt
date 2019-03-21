@@ -6,6 +6,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.navigation.NavigationView
+import com.sukitsuki.ano.fragment.FavoriteFragment
+import com.sukitsuki.ano.fragment.HistoryFragment
 import com.sukitsuki.ano.fragment.HomeFragment
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
@@ -17,6 +19,8 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
 
   private lateinit var fragmentManager: FragmentManager
   private val mHomeFragment by lazy { HomeFragment.newInstance() }
+  private val mFavoriteFragment by lazy { FavoriteFragment.newInstance() }
+  private val mHistoryFragment by lazy { HistoryFragment.newInstance() }
 
   @dagger.Subcomponent(modules = [])
   interface Component : AndroidInjector<MainActivity> {
@@ -47,6 +51,14 @@ class MainActivity : DaggerAppCompatActivity(), NavigationView.OnNavigationItemS
     when (item.itemId) {
       R.id.nav_home -> {
         transaction.replace(R.id.view_content_main, mHomeFragment)
+        transaction.commit()
+      }
+      R.id.nav_favorite -> {
+        transaction.replace(R.id.view_content_main, mFavoriteFragment)
+        transaction.commit()
+      }
+      R.id.nav_history -> {
+        transaction.replace(R.id.view_content_main, mHistoryFragment)
         transaction.commit()
       }
       else -> {
