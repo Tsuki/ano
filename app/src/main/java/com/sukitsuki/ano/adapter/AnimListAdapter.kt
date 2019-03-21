@@ -14,10 +14,18 @@ import kotlinx.android.synthetic.main.view_anime_list_holder.view.*
 
 class AnimListAdapter(val context: Context) : RecyclerView.Adapter<AnimListAdapter.ViewHolder>() {
   lateinit var onItemClick: ((Anim) -> Unit)
+  var oriDataSet: List<Anim> = emptyList()
   var dataSet: List<Anim> = emptyList()
 
   fun loadDataSet(newDataSet: List<Anim>) {
-    dataSet = newDataSet
+    oriDataSet = newDataSet
+    dataSet = oriDataSet
+    this.notifyDataSetChanged()
+  }
+
+  fun filter(query: String) {
+    dataSet = if (query == "") oriDataSet
+    else oriDataSet.filter { it.title.toLowerCase().contains(query.toLowerCase()) }
     this.notifyDataSetChanged()
   }
 

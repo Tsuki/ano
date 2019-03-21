@@ -2,8 +2,12 @@ package com.sukitsuki.ano.fragment
 
 import android.app.SearchManager
 import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Configuration.HARDKEYBOARDHIDDEN_NO
 import android.os.Bundle
 import android.view.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,7 +23,16 @@ import org.jetbrains.anko.support.v4.intentFor
 import timber.log.Timber
 import javax.inject.Inject
 
-class HomeFragment : DaggerFragment() {
+class HomeFragment : DaggerFragment(), SearchView.OnQueryTextListener {
+
+  override fun onQueryTextSubmit(query: String?): Boolean {
+    return false
+  }
+
+  override fun onQueryTextChange(newText: String?): Boolean {
+    newText?.let { animListAdapter.filter(it.trim()) } ?: run { animListAdapter.filter("") }
+    return true
+  }
 
   companion object {
     fun newInstance() = HomeFragment()
@@ -46,6 +59,9 @@ class HomeFragment : DaggerFragment() {
     }
   }
 
+  private var searchItem: MenuItem? = null
+  private var searchManager: SearchManager? = null
+
   override fun onCreate(savedInstanceState: Bundle?) {
     setHasOptionsMenu(true)
     super.onCreate(savedInstanceState)
@@ -71,11 +87,33 @@ class HomeFragment : DaggerFragment() {
 
   override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
     inflater?.inflate(R.menu.menu_anim_detail, menu)
-    Timber.i("onCreateOptionsMenu")
-    val searchItem = menu?.findItem(R.id.action_search)
-    val searchManager = activity?.getSystemService(Context.SEARCH_SERVICE) as SearchManager?
+    searchItem = menu?.findItem(R.id.action_search)
+    (searchItem?.actionView as SearchView).setOnQueryTextListener(this)
+    searchItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+      override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+        Timber.i("onMenuItemActionExpand")
+        val actionBar = (activity as AppCompatActivity).supportActionBar
+        actionBar?.setDisplayShowTitleEnabled(false)
+        return true
+      }
 
+      override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+        Timber.i("onMenuItemActionCollapse")
+        val actionBar = (activity as AppCompatActivity).supportActionBar
+        actionBar?.setDisplayShowTitleEnabled(true)
+        return true
+      }
+
+    })
+    searchManager = activity?.getSystemService(Context.SEARCH_SERVICE) as SearchManager?
     super.onCreateOptionsMenu(menu, inflater)
+  }
+
+  override fun onConfigurationChanged(newConfig: Configuration?) {
+    Timber.i("onConfigurationChanged:${newConfig?.keyboardHidden}")
+    if (newConfig?.keyboardHidden == HARDKEYBOARDHIDDEN_NO) {
+    }
+    super.onConfigurationChanged(newConfig)
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {

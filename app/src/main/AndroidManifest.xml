@@ -17,6 +17,7 @@
       android:theme="@style/AppTheme.NoActionBar" />
     <activity
       android:name=".MainActivity"
+      android:configChanges="keyboardHidden"
       android:screenOrientation="portrait"
       android:theme="@style/AppTheme.NoActionBar">
       <intent-filter>
