@@ -1,9 +1,9 @@
 package com.sukitsuki.ano.fragment
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +16,7 @@ import dagger.android.AndroidInjector
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.home_fragment.*
 import org.jetbrains.anko.support.v4.intentFor
+import timber.log.Timber
 import javax.inject.Inject
 
 class HomeFragment : DaggerFragment() {
@@ -45,6 +46,11 @@ class HomeFragment : DaggerFragment() {
     }
   }
 
+  override fun onCreate(savedInstanceState: Bundle?) {
+    setHasOptionsMenu(true)
+    super.onCreate(savedInstanceState)
+  }
+
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
@@ -61,6 +67,15 @@ class HomeFragment : DaggerFragment() {
       adapter = animListAdapter
     }
     super.onViewCreated(view, savedInstanceState)
+  }
+
+  override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    inflater?.inflate(R.menu.menu_anim_detail, menu)
+    Timber.i("onCreateOptionsMenu")
+    val searchItem = menu?.findItem(R.id.action_search)
+    val searchManager = activity?.getSystemService(Context.SEARCH_SERVICE) as SearchManager?
+
+    super.onCreateOptionsMenu(menu, inflater)
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
