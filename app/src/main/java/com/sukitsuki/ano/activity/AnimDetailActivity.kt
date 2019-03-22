@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
 import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import butterknife.ButterKnife
 import butterknife.OnClick
+import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory
@@ -34,7 +36,7 @@ import org.jetbrains.anko.sdk27.coroutines.onSystemUiVisibilityChange
 import timber.log.Timber
 import javax.inject.Inject
 
-class AnimDetailActivity : DaggerAppCompatActivity() {
+class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
 
   @dagger.Subcomponent(modules = [])
   interface Component : AndroidInjector<AnimDetailActivity> {
@@ -90,6 +92,8 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
         && requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
       ) delayedHide()
     }
+    simpleExoPlayer.addListener(this@AnimDetailActivity)
+    onPlayerStateChanged(simpleExoPlayer.playWhenReady, simpleExoPlayer.playbackState)
 
     toolbar?.let {
       it.title = animList.title
@@ -165,6 +169,15 @@ class AnimDetailActivity : DaggerAppCompatActivity() {
       else -> {
         Timber.i("requestedOrientation:$requestedOrientation")
       }
+    }
+  }
+
+  override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
+    when {
+      playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY && playWhenReady ->
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+      playbackState == Player.STATE_IDLE || playbackState == Player.STATE_ENDED || playbackState == Player.STATE_READY && !playWhenReady ->
+        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
   }
 
