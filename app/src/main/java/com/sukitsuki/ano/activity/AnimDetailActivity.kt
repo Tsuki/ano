@@ -1,10 +1,12 @@
 package com.sukitsuki.ano.activity
 
+import android.Manifest
 import android.content.pm.ActivityInfo
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
+import android.view.TextureView
 import android.view.View
 import android.view.WindowManager
 import androidx.core.net.toUri
@@ -27,15 +29,20 @@ import com.sukitsuki.ano.adapter.AnimEpisodeAdapter
 import com.sukitsuki.ano.model.Anim
 import com.sukitsuki.ano.repository.BackendRepository
 import com.sukitsuki.ano.utils.ViewModelFactory
+import com.sukitsuki.ano.utils.showRationale
+import com.sukitsuki.ano.utils.takeScreenshot
 import com.sukitsuki.ano.viewmodel.AnimEpisodeViewModel
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.android.synthetic.main.activity_anim_detail.*
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.sdk27.coroutines.onSystemUiVisibilityChange
+import org.jetbrains.anko.toast
+import permissions.dispatcher.*
 import timber.log.Timber
 import javax.inject.Inject
 
+@RuntimePermissions
 class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
 
   @dagger.Subcomponent(modules = [])
@@ -213,6 +220,36 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
     simpleExoPlayer.prepare(mediaSource)
 
     Timber.d("replace: $url")
+  }
+
+  @OnClick(R.id.exo_screenshot)
+  internal fun screenshotPermissionCheck() {
+    if (simpleExoPlayer.playbackState != Player.STATE_READY) return run { longToast("非播放中") }
+    if (playerView.videoSurfaceView !is TextureView) {
+      longToast("Only support in TextureView")
+      return
+    }
+    screenshotWithPermissionCheck()
+  }
+
+  @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+  internal fun screenshot() {
+    toast("己保存在 ${takeScreenshot((playerView.videoSurfaceView as TextureView).bitmap)}")
+  }
+
+  @OnShowRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+  fun showRationaleForStorage(request: PermissionRequest) =
+    showRationale(request, "截圖需要保存權限，應用將要申請保存權限")
+
+
+  @OnPermissionDenied(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+  fun showDenied() {
+    longToast("沒有權限保存截圖")
+  }
+
+  @OnNeverAskAgain(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+  fun onNeverAskAgain() {
+    longToast("您已經禁止了保存權限,是否現在去開啓")
   }
 
 }

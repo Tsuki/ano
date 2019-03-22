@@ -17,4 +17,7 @@
   <string name="action_settings">Settings</string>
   <string name="exo_fullscreen_icon">fullscreen</string>
   <string name="action_search">Search</string>
+  <string name="yes">是</string>
+  <string name="no">否</string>
+  <string name="alert_rationale_message">rationale message</string>
 </resources>
