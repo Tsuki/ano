@@ -16,10 +16,11 @@ import timber.log.Timber
 class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
   RecyclerView.Adapter<AnimEpisodeAdapter.ViewHolder>() {
   lateinit var onItemClick: ((AnimFrame, AnimEpisode) -> Unit)
-  var dataSet: List<AnimEpisode> = emptyList()
+  private var mDataSet: List<AnimEpisode> = emptyList()
+  private var mLastClick = -1
 
   fun loadDataSet(newDataSet: List<AnimEpisode>) {
-    dataSet = newDataSet
+    mDataSet = newDataSet
     this.notifyDataSetChanged()
   }
 
@@ -29,10 +30,10 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
     return ViewHolder(textView)
   }
 
-  override fun getItemCount() = dataSet.size
+  override fun getItemCount() = mDataSet.size
 
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    val anim = dataSet[position]
+    val anim = mDataSet[position]
     holder.textView.text = anim.title
   }
 
@@ -41,16 +42,18 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
 
     init {
       itemView.setOnClickListener {
-        val url = dataSet[adapterPosition].url
+        if (mLastClick == adapterPosition) return@setOnClickListener
+        mLastClick = adapterPosition
+        val url = mDataSet[adapterPosition].url
         if (url == "") {
-          onItemClick.invoke(AnimFrame(), dataSet[adapterPosition])
+          onItemClick.invoke(AnimFrame(), mDataSet[adapterPosition])
           return@setOnClickListener
         }
         backendRepository.animVideo(url)
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .doOnError { Timber.w(it) }
-          .subscribe { onItemClick.invoke(it, dataSet[adapterPosition]) }
+          .subscribe { onItemClick.invoke(it, mDataSet[adapterPosition]) }
       }
     }
   }

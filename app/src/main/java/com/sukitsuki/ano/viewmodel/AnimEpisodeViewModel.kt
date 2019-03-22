@@ -12,11 +12,11 @@ import javax.inject.Inject
 
 class AnimEpisodeViewModel @Inject constructor(private val repository: BackendRepository) : ViewModel() {
   var episode = MutableLiveData<List<AnimEpisode>>().apply { value = emptyList() }
-  private var lastCat = ""
+  private var mLastCat = ""
 
   fun fetchData(cat: String): Disposable? {
-    if (lastCat == cat) return null
-    this.lastCat = cat
+    if (mLastCat == cat) return null
+    this.mLastCat = cat
     return repository.animDetail(cat)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
