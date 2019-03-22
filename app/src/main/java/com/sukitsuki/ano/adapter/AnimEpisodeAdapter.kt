@@ -15,7 +15,7 @@ import timber.log.Timber
 
 class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
   RecyclerView.Adapter<AnimEpisodeAdapter.ViewHolder>() {
-  lateinit var onItemClick: ((AnimFrame) -> Unit)
+  lateinit var onItemClick: ((AnimFrame, AnimEpisode) -> Unit)
   var dataSet: List<AnimEpisode> = emptyList()
 
   fun loadDataSet(newDataSet: List<AnimEpisode>) {
@@ -43,14 +43,14 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
       itemView.setOnClickListener {
         val url = dataSet[adapterPosition].url
         if (url == "") {
-          onItemClick.invoke(AnimFrame())
+          onItemClick.invoke(AnimFrame(), dataSet[adapterPosition])
           return@setOnClickListener
         }
         backendRepository.animVideo(url)
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .doOnError { Timber.w(it) }
-          .subscribe { onItemClick.invoke(it) }
+          .subscribe { onItemClick.invoke(it, dataSet[adapterPosition]) }
       }
     }
   }
