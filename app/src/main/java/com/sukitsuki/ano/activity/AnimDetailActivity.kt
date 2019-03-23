@@ -83,7 +83,7 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
           it.poster2 != "" -> replaceMp4(it.source2)
           else -> longToast("Cannot load source")
         }
-        toolbar?.let { tb -> tb.title = it2.title }
+        toolbar?.let { tb -> tb.subtitle = it2.title }
       }
     }
   }
@@ -93,7 +93,7 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
     animList = intent.getParcelableExtra("animList")
     setContentView(R.layout.activity_anim_detail)
     ButterKnife.bind(this)
-
+    val f = toolbar::class
     window.decorView.onSystemUiVisibilityChange {
       if ((it and View.SYSTEM_UI_FLAG_FULLSCREEN) == 0
         && requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE

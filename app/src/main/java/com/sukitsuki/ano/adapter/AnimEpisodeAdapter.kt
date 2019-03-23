@@ -1,5 +1,6 @@
 package com.sukitsuki.ano.adapter
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,9 +31,16 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
     return ViewHolder(textView)
   }
 
+  private val mTransparent by lazy { Color.parseColor("#00FFFFFF") }
+  private val mBlackOverlay by lazy { Color.parseColor("#66000000") }
+
   override fun getItemCount() = mDataSet.size
 
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    if (mLastClick == position)
+      holder.itemView.setBackgroundColor(mBlackOverlay)
+    else
+      holder.itemView.setBackgroundColor(mTransparent)
     val anim = mDataSet[position]
     holder.textView.text = anim.title
   }
@@ -49,11 +57,12 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
           onItemClick.invoke(AnimFrame(), mDataSet[adapterPosition])
           return@setOnClickListener
         }
+        notifyDataSetChanged()
         backendRepository.animVideo(url)
           .subscribeOn(Schedulers.io())
           .observeOn(AndroidSchedulers.mainThread())
           .doOnError { Timber.w(it) }
-          .subscribe { onItemClick.invoke(it, mDataSet[adapterPosition]) }
+          .subscribe { onItemClick.invoke(it, mDataSet[mLastClick]) }
       }
     }
   }
