@@ -13,11 +13,11 @@ data class AnimList(
 @Parcelize
 data class Anim(
 
-  @Selector("td.column-1 > a", attr = "href")
-  var href: String = "",
-
   @Selector("td.column-1")
   var title: String = "",
+
+  @Selector("td.column-1 > a", attr = "href")
+  var href: String = "",
 
   @Selector("td.column-2")
   var episodeTitle: String = "",

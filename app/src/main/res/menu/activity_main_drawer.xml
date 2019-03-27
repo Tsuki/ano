@@ -10,7 +10,7 @@
       android:title="@string/menu_anime_list" />
     <item
       android:id="@+id/nav_favorite"
-      android:enabled="false"
+      android:enabled="true"
       android:icon="@drawable/ic_menu_gallery"
       android:title="@string/menu_favorite" />
     <item
