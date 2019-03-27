@@ -10,16 +10,20 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-class FavoriteViewModel @Inject constructor(private val favoriteDao: FavoriteDao) : ViewModel() {
+class FavoriteViewModel @Inject constructor(private val dao: FavoriteDao) : ViewModel() {
 
   var favorites = MutableLiveData<List<Favorite>>().apply { value = emptyList() }
 
   fun fetchData(): Disposable? {
-    return this.favoriteDao.getAll()
+    return this.dao.getAll()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doOnError { Timber.w(it) }
       .onErrorReturn { emptyList() }
       .subscribe { favorites.value = it }
+  }
+
+  fun deleteItem(item: Favorite) {
+    return this.dao.deleteOne(item)
   }
 }

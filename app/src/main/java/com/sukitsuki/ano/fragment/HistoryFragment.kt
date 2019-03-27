@@ -6,15 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sukitsuki.ano.R
 import com.sukitsuki.ano.activity.AnimDetailActivity
 import com.sukitsuki.ano.adapter.HistoryAdapter
+import com.sukitsuki.ano.entity.WatchHistory
+import com.sukitsuki.ano.utils.SwipeToDeleteCallback
 import com.sukitsuki.ano.utils.ViewModelFactory
 import com.sukitsuki.ano.viewmodel.HistoryViewModel
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.history_fragment.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.support.v4.intentFor
 import javax.inject.Inject
 
@@ -40,6 +44,7 @@ class HistoryFragment : DaggerFragment() {
       this.onItemClick = { it ->
         startActivity(intentFor<AnimDetailActivity>("animList" to it.anim))
       }
+      this.deleteItemFun = { doAsync { viewModel.deleteItem(it as WatchHistory) } }
     }
   }
 
@@ -57,6 +62,7 @@ class HistoryFragment : DaggerFragment() {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
       adapter = listAdapter
+      ItemTouchHelper(SwipeToDeleteCallback(listAdapter)).attachToRecyclerView(this)
     }
   }
 
@@ -64,4 +70,5 @@ class HistoryFragment : DaggerFragment() {
     super.onActivityCreated(savedInstanceState)
     viewModel.fetchData()
   }
+
 }

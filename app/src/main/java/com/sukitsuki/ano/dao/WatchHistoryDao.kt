@@ -1,6 +1,7 @@
 package com.sukitsuki.ano.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Query
 import com.sukitsuki.ano.entity.WatchHistory
 import io.reactivex.Observable
@@ -13,5 +14,8 @@ interface WatchHistoryDao : BaseDao<WatchHistory> {
 
   @Query("DELETE FROM watch_histories")
   fun deleteAll()
+
+  @Delete
+  fun deleteOne(history: WatchHistory)
 
 }

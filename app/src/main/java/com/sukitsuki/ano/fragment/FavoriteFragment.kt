@@ -6,15 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.sukitsuki.ano.R
 import com.sukitsuki.ano.activity.AnimDetailActivity
 import com.sukitsuki.ano.adapter.FavoriteAdapter
+import com.sukitsuki.ano.entity.Favorite
+import com.sukitsuki.ano.utils.SwipeToDeleteCallback
 import com.sukitsuki.ano.utils.ViewModelFactory
 import com.sukitsuki.ano.viewmodel.FavoriteViewModel
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerFragment
 import kotlinx.android.synthetic.main.favorite_fragment.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.support.v4.intentFor
 import javax.inject.Inject
 
@@ -37,9 +41,8 @@ class FavoriteFragment : DaggerFragment() {
 
   private val listAdapter by lazy {
     FavoriteAdapter(requireContext()).apply {
-      this.onItemClick = { it ->
-        startActivity(intentFor<AnimDetailActivity>("animList" to it.anim))
-      }
+      this.onItemClick = { startActivity(intentFor<AnimDetailActivity>("animList" to it.anim)) }
+      this.deleteItemFun = { doAsync { viewModel.deleteItem(it as Favorite) } }
     }
   }
 
@@ -57,6 +60,7 @@ class FavoriteFragment : DaggerFragment() {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
       adapter = listAdapter
+      ItemTouchHelper(SwipeToDeleteCallback(listAdapter)).attachToRecyclerView(this)
     }
   }
 

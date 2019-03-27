@@ -10,15 +10,19 @@ import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
 
-class HistoryViewModel @Inject constructor(private val historyDao: WatchHistoryDao) : ViewModel() {
+class HistoryViewModel @Inject constructor(private val dao: WatchHistoryDao) : ViewModel() {
   var history = MutableLiveData<List<WatchHistory>>().apply { value = emptyList() }
 
   fun fetchData(): Disposable? {
-    return this.historyDao.getAll()
+    return this.dao.getAll()
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doOnError { Timber.w(it) }
       .onErrorReturn { emptyList() }
       .subscribe { history.value = it }
+  }
+
+  fun deleteItem(item: WatchHistory) {
+    return this.dao.deleteOne(item)
   }
 }
