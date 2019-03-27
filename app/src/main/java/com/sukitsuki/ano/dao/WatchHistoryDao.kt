@@ -8,7 +8,7 @@ import io.reactivex.Observable
 @Dao
 interface WatchHistoryDao : BaseDao<WatchHistory> {
 
-  @Query("SELECT * from watch_histories order by create_at")
+  @Query("SELECT * from watch_histories order by create_at desc")
   fun getAll(): Observable<List<WatchHistory>>
 
   @Query("DELETE FROM watch_histories")

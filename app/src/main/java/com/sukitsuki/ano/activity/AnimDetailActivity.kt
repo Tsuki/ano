@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import butterknife.BindColor
 import butterknife.ButterKnife
 import butterknife.OnClick
+import butterknife.Optional
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
@@ -28,7 +29,9 @@ import com.google.android.exoplayer2.util.Util
 import com.sukitsuki.ano.R
 import com.sukitsuki.ano.adapter.AnimEpisodeAdapter
 import com.sukitsuki.ano.dao.FavoriteDao
+import com.sukitsuki.ano.dao.WatchHistoryDao
 import com.sukitsuki.ano.entity.Favorite
+import com.sukitsuki.ano.entity.WatchHistory
 import com.sukitsuki.ano.model.Anim
 import com.sukitsuki.ano.repository.BackendRepository
 import com.sukitsuki.ano.utils.ViewModelFactory
@@ -68,7 +71,9 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
   @Inject
   lateinit var simpleExoPlayer: SimpleExoPlayer
   @Inject
-  lateinit var favoriteDao: FavoriteDao
+  lateinit var mFavoriteDao: FavoriteDao
+  @Inject
+  lateinit var mWatchHistoryDao: WatchHistoryDao
 
   private val mHideHandler = Handler()
   private val mHideRunnable = Runnable { mHideHandler.postDelayed(mHidePart2Runnable, 300L) }
@@ -127,6 +132,7 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
       it.title = animList.title
       setSupportActionBar(it)
       supportActionBar?.setDisplayHomeAsUpEnabled(true)
+      return@let
     }
 
     playerView.player = simpleExoPlayer
@@ -139,13 +145,14 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
 
     bookmarkFab?.let { updateBookmark() }
 
-    animList.getCat()?.let { viewModel.fetchData(it) } ?: run { longToast("Can't get cat") }
+    animList.getCat()?.let { cat -> viewModel.fetchData(cat) }
     viewModel.episode.observe(this, Observer { animEpisodeAdapter.loadDataSet(it) })
+    doAsync { mWatchHistoryDao.insert(WatchHistory(animList)) }
   }
 
 
   private fun updateBookmark() {
-    favoriteDao.getByTitle(animList.title)
+    mFavoriteDao.getByTitle(animList.title)
       .subscribeOn(Schedulers.io())
       .observeOn(AndroidSchedulers.mainThread())
       .doOnError { Timber.w(it) }
@@ -221,14 +228,15 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
   }
 
   @OnClick(R.id.bookmarkFab)
+  @Optional
   fun bookmark() {
     doAsync {
       mFavorite?.let {
-        favoriteDao.delete(it)
+        mFavoriteDao.delete(it)
         mFavorite = null
       } ?: run {
         mFavorite = Favorite(animList)
-        favoriteDao.insert(mFavorite!!)
+        mFavoriteDao.insert(mFavorite!!)
         return@run
       }
       uiThread {
