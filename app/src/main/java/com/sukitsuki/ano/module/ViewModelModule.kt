@@ -3,6 +3,8 @@ package com.sukitsuki.ano.module
 import androidx.lifecycle.ViewModel
 import com.sukitsuki.ano.utils.ViewModelKey
 import com.sukitsuki.ano.viewmodel.AnimEpisodeViewModel
+import com.sukitsuki.ano.viewmodel.FavoriteViewModel
+import com.sukitsuki.ano.viewmodel.HistoryViewModel
 import com.sukitsuki.ano.viewmodel.HomeViewModel
 import dagger.Binds
 import dagger.multibindings.IntoMap
@@ -20,6 +22,16 @@ abstract class ViewModelModule {
   @IntoMap
   @ViewModelKey(AnimEpisodeViewModel::class)
   abstract fun bindAnimEpisodeViewModel(viewModel: AnimEpisodeViewModel): ViewModel
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(FavoriteViewModel::class)
+  abstract fun bindFavoriteViewModel(viewModel: FavoriteViewModel): ViewModel
+
+  @Binds
+  @IntoMap
+  @ViewModelKey(HistoryViewModel::class)
+  abstract fun bindHistoryViewModel(viewModel: HistoryViewModel): ViewModel
 
 
 }

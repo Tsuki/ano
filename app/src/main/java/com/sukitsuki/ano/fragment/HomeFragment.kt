@@ -71,7 +71,7 @@ class HomeFragment : DaggerFragment(), SearchView.OnQueryTextListener {
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    this.viewModel.favorites.observe(this, Observer { animListAdapter.loadDataSet(it) })
+    this.viewModel.animList.observe(this, Observer { animListAdapter.loadDataSet(it) })
     return inflater.inflate(R.layout.home_fragment, container, false)
   }
 
@@ -118,7 +118,7 @@ class HomeFragment : DaggerFragment(), SearchView.OnQueryTextListener {
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    viewModel.favorites.observe(this, Observer { homeRefreshLayout.isRefreshing = false })
+    viewModel.animList.observe(this, Observer { homeRefreshLayout.isRefreshing = false })
   }
 
 }

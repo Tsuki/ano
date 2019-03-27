@@ -4,15 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.sukitsuki.ano.R
-import com.sukitsuki.ano.dao.FavoriteDao
+import com.sukitsuki.ano.activity.AnimDetailActivity
+import com.sukitsuki.ano.adapter.FavoriteAdapter
+import com.sukitsuki.ano.utils.ViewModelFactory
 import com.sukitsuki.ano.viewmodel.FavoriteViewModel
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerFragment
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.rxkotlin.addTo
-import timber.log.Timber
+import kotlinx.android.synthetic.main.favorite_fragment.*
+import org.jetbrains.anko.support.v4.intentFor
 import javax.inject.Inject
 
 class FavoriteFragment : DaggerFragment() {
@@ -28,30 +31,38 @@ class FavoriteFragment : DaggerFragment() {
   }
 
   @Inject
-  lateinit var favoriteDao: FavoriteDao
-  private val compositeDisposable by lazy { CompositeDisposable() }
+  lateinit var viewModeFactory: ViewModelFactory
 
-  private lateinit var viewModel: FavoriteViewModel
+  private val viewModel by lazy { ViewModelProviders.of(this, viewModeFactory).get(FavoriteViewModel::class.java) }
+
+  private val favoriteListAdapter by lazy {
+    FavoriteAdapter(requireContext()).apply {
+      this.onItemClick = { it ->
+        startActivity(intentFor<AnimDetailActivity>("animList" to it.anim))
+      }
+    }
+  }
 
   override fun onCreateView(
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
+    this.viewModel.favorites.observe(this, Observer { favoriteListAdapter.loadDataSet(it) })
     return inflater.inflate(R.layout.favorite_fragment, container, false)
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    favoriteListView.apply {
+      setHasFixedSize(true)
+      layoutManager = LinearLayoutManager(requireContext())
+      adapter = favoriteListAdapter
+    }
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
-    viewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
-    this.favoriteDao.getAll()
-      .onErrorReturn { emptyList() }
-      .subscribe { Timber.d("onActivityCreated: $it") }
-      .addTo(compositeDisposable)
-    // TODO: Use the ViewModel
-  }
+    viewModel.fetchData()
 
-  override fun onDestroyView() {
-    super.onDestroyView()
-    compositeDisposable.dispose()
   }
 }

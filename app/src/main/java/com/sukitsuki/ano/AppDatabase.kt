@@ -32,8 +32,8 @@ abstract class AppDatabase : RoomDatabase() {
       return Room.databaseBuilder(it.applicationContext, AppDatabase::class.java, DatabaseName)
         // .fallbackToDestructiveMigrationFrom(4, 5)
         // .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
-        .fallbackToDestructiveMigrationOnDowngrade()
-        // .fallbackToDestructiveMigration()
+        // .fallbackToDestructiveMigrationOnDowngrade()
+        .fallbackToDestructiveMigration()
         .build()
     }
   }
