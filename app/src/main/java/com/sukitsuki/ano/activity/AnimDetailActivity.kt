@@ -13,6 +13,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import butterknife.BindColor
 import butterknife.ButterKnife
 import butterknife.OnClick
 import com.google.android.exoplayer2.Player
@@ -26,6 +27,8 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.sukitsuki.ano.R
 import com.sukitsuki.ano.adapter.AnimEpisodeAdapter
+import com.sukitsuki.ano.dao.FavoriteDao
+import com.sukitsuki.ano.entity.Favorite
 import com.sukitsuki.ano.model.Anim
 import com.sukitsuki.ano.repository.BackendRepository
 import com.sukitsuki.ano.utils.ViewModelFactory
@@ -34,10 +37,16 @@ import com.sukitsuki.ano.utils.takeScreenshot
 import com.sukitsuki.ano.viewmodel.AnimEpisodeViewModel
 import dagger.android.AndroidInjector
 import dagger.android.support.DaggerAppCompatActivity
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.rxkotlin.addTo
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_anim_detail.*
+import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.longToast
 import org.jetbrains.anko.sdk27.coroutines.onSystemUiVisibilityChange
 import org.jetbrains.anko.toast
+import org.jetbrains.anko.uiThread
 import permissions.dispatcher.*
 import timber.log.Timber
 import javax.inject.Inject
@@ -58,6 +67,8 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
   lateinit var backendRepository: BackendRepository
   @Inject
   lateinit var simpleExoPlayer: SimpleExoPlayer
+  @Inject
+  lateinit var favoriteDao: FavoriteDao
 
   private val mHideHandler = Handler()
   private val mHideRunnable = Runnable { mHideHandler.postDelayed(mHidePart2Runnable, 300L) }
@@ -74,6 +85,8 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
   private val viewModel: AnimEpisodeViewModel by lazy {
     ViewModelProviders.of(this, viewModeFactory).get(AnimEpisodeViewModel::class.java)
   }
+  private var mFavorite: Favorite? = null
+  private val mCompositeDisposable = CompositeDisposable()
 
   private val animEpisodeAdapter by lazy {
     AnimEpisodeAdapter(backendRepository).apply {
@@ -87,7 +100,16 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
       }
     }
   }
-  lateinit var animList: Anim
+  private lateinit var animList: Anim
+
+  @BindColor(R.color.colorAccent)
+  @JvmField
+  var bookmarkActive: Int = 0
+
+  @BindColor(R.color.primaryTextColor)
+  @JvmField
+  var bookmarkInactive: Int = 0
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     animList = intent.getParcelableExtra("animList")
@@ -115,8 +137,23 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
       adapter = animEpisodeAdapter
     }
 
+    bookmarkFab?.let { updateBookmark() }
+
     animList.getCat()?.let { viewModel.fetchData(it) } ?: run { longToast("Can't get cat") }
     viewModel.episode.observe(this, Observer { animEpisodeAdapter.loadDataSet(it) })
+  }
+
+
+  private fun updateBookmark() {
+    favoriteDao.getByTitle(animList.title)
+      .subscribeOn(Schedulers.io())
+      .observeOn(AndroidSchedulers.mainThread())
+      .doOnError { Timber.w(it) }
+      .onErrorReturn { null }
+      .subscribe {
+        mFavorite = it
+        updateBookmarkColor()
+      }.addTo(mCompositeDisposable)
   }
 
   override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -133,6 +170,11 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
         Timber.i("requestedOrientation:$requestedOrientation")
       }
     }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    mCompositeDisposable.dispose()
   }
 
   private fun delayedHide(uiAnimationDelay: Long = 1000L) {
@@ -176,6 +218,28 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
         Timber.i("requestedOrientation:$requestedOrientation")
       }
     }
+  }
+
+  @OnClick(R.id.bookmarkFab)
+  fun bookmark() {
+    doAsync {
+      mFavorite?.let {
+        favoriteDao.delete(it)
+        mFavorite = null
+      } ?: run {
+        mFavorite = Favorite(animList)
+        favoriteDao.insert(mFavorite!!)
+        return@run
+      }
+      uiThread {
+        updateBookmarkColor()
+      }
+    }
+  }
+
+  private fun updateBookmarkColor() {
+    mFavorite?.let { bookmarkFab?.setColorFilter(bookmarkActive) }
+      ?: run { bookmarkFab?.setColorFilter(bookmarkInactive) }
   }
 
   override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {

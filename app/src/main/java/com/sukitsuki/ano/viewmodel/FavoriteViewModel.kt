@@ -20,7 +20,6 @@ class FavoriteViewModel @Inject constructor(private val favoriteDao: FavoriteDao
       .observeOn(AndroidSchedulers.mainThread())
       .doOnError { Timber.w(it) }
       .onErrorReturn { emptyList() }
-      .doOnNext { Timber.d("fetchData: $it") }
       .subscribe { favorites.value = it }
   }
 }
