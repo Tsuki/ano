@@ -11,7 +11,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class HistoryViewModel @Inject constructor(private val historyDao: WatchHistoryDao) : ViewModel() {
-  var favorites = MutableLiveData<List<WatchHistory>>().apply { value = emptyList() }
+  var history = MutableLiveData<List<WatchHistory>>().apply { value = emptyList() }
 
   fun fetchData(): Disposable? {
     return this.historyDao.getAll()
@@ -19,6 +19,6 @@ class HistoryViewModel @Inject constructor(private val historyDao: WatchHistoryD
       .observeOn(AndroidSchedulers.mainThread())
       .doOnError { Timber.w(it) }
       .onErrorReturn { emptyList() }
-      .subscribe { favorites.value = it }
+      .subscribe { history.value = it }
   }
 }

@@ -35,7 +35,7 @@ class FavoriteFragment : DaggerFragment() {
 
   private val viewModel by lazy { ViewModelProviders.of(this, viewModeFactory).get(FavoriteViewModel::class.java) }
 
-  private val favoriteListAdapter by lazy {
+  private val listAdapter by lazy {
     FavoriteAdapter(requireContext()).apply {
       this.onItemClick = { it ->
         startActivity(intentFor<AnimDetailActivity>("animList" to it.anim))
@@ -47,7 +47,7 @@ class FavoriteFragment : DaggerFragment() {
     inflater: LayoutInflater, container: ViewGroup?,
     savedInstanceState: Bundle?
   ): View? {
-    this.viewModel.favorites.observe(this, Observer { favoriteListAdapter.loadDataSet(it) })
+    this.viewModel.favorites.observe(this, Observer { listAdapter.loadDataSet(it) })
     return inflater.inflate(R.layout.favorite_fragment, container, false)
   }
 
@@ -56,13 +56,12 @@ class FavoriteFragment : DaggerFragment() {
     favoriteListView.apply {
       setHasFixedSize(true)
       layoutManager = LinearLayoutManager(requireContext())
-      adapter = favoriteListAdapter
+      adapter = listAdapter
     }
   }
 
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
     viewModel.fetchData()
-
   }
 }
