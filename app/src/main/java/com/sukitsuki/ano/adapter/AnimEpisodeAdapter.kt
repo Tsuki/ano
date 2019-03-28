@@ -7,18 +7,12 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.sukitsuki.ano.model.AnimEpisode
-import com.sukitsuki.ano.model.AnimFrame
-import com.sukitsuki.ano.repository.BackendRepository
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
+import com.sukitsuki.ano.viewmodel.AnimEpisodeViewModel
 
 
-class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
+class AnimEpisodeAdapter(private val viewModel: AnimEpisodeViewModel) :
   RecyclerView.Adapter<AnimEpisodeAdapter.ViewHolder>() {
-  lateinit var onItemClick: ((AnimFrame, AnimEpisode) -> Unit)
   private var mDataSet: List<AnimEpisode> = emptyList()
-  private var mLastClick = -1
 
   fun loadDataSet(newDataSet: List<AnimEpisode>) {
     mDataSet = newDataSet
@@ -37,12 +31,11 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
   override fun getItemCount() = mDataSet.size
 
   override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-    if (mLastClick == position)
+    if (mDataSet[position] == viewModel.animEpisode.value)
       holder.itemView.setBackgroundColor(mBlackOverlay)
     else
       holder.itemView.setBackgroundColor(mTransparent)
-    val anim = mDataSet[position]
-    holder.textView.text = anim.title
+    holder.textView.text = mDataSet[position].title
   }
 
   inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -50,19 +43,11 @@ class AnimEpisodeAdapter(val backendRepository: BackendRepository) :
 
     init {
       itemView.setOnClickListener {
-        if (mLastClick == adapterPosition) return@setOnClickListener
-        mLastClick = adapterPosition
-        val url = mDataSet[adapterPosition].url
-        if (url == "") {
-          onItemClick.invoke(AnimFrame(), mDataSet[adapterPosition])
+        if (mDataSet[adapterPosition] == viewModel.animEpisode.value)
           return@setOnClickListener
-        }
+        viewModel.animEpisode.value = mDataSet[adapterPosition]
+        viewModel.fetchAnimFrame(mDataSet[adapterPosition])
         notifyDataSetChanged()
-        backendRepository.animVideo(url)
-          .subscribeOn(Schedulers.io())
-          .observeOn(AndroidSchedulers.mainThread())
-          .doOnError { Timber.w(it) }
-          .subscribe { onItemClick.invoke(it, mDataSet[mLastClick]) }
       }
     }
   }

@@ -33,7 +33,7 @@ import com.sukitsuki.ano.dao.WatchHistoryDao
 import com.sukitsuki.ano.entity.Favorite
 import com.sukitsuki.ano.entity.WatchHistory
 import com.sukitsuki.ano.model.Anim
-import com.sukitsuki.ano.repository.BackendRepository
+import com.sukitsuki.ano.model.AnimFrame
 import com.sukitsuki.ano.utils.ViewModelFactory
 import com.sukitsuki.ano.utils.showRationale
 import com.sukitsuki.ano.utils.takeScreenshot
@@ -67,8 +67,6 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
   @Inject
   lateinit var viewModeFactory: ViewModelFactory
   @Inject
-  lateinit var backendRepository: BackendRepository
-  @Inject
   lateinit var simpleExoPlayer: SimpleExoPlayer
   @Inject
   lateinit var mFavoriteDao: FavoriteDao
@@ -93,18 +91,7 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
   private var mFavorite: Favorite? = null
   private val mCompositeDisposable = CompositeDisposable()
 
-  private val animEpisodeAdapter by lazy {
-    AnimEpisodeAdapter(backendRepository).apply {
-      this.onItemClick = { it, it2 ->
-        when {
-          it.source != "" -> replace(it.source)
-          it.poster2 != "" -> replaceMp4(it.source2)
-          else -> longToast("Cannot load source")
-        }
-        toolbar?.let { tb -> tb.subtitle = it2.title }
-      }
-    }
-  }
+  private val animEpisodeAdapter by lazy { AnimEpisodeAdapter(viewModel) }
   private lateinit var animList: Anim
 
   @BindColor(R.color.colorAccent)
@@ -147,6 +134,17 @@ class AnimDetailActivity : DaggerAppCompatActivity(), Player.EventListener {
 
     animList.getCat()?.let { cat -> viewModel.fetchData(cat) }
     viewModel.episode.observe(this, Observer { animEpisodeAdapter.loadDataSet(it) })
+    viewModel.animEpisode.observe(this, Observer {
+      toolbar?.let { tb -> tb.subtitle = it.title }
+    })
+    viewModel.animFrame.observe(this, Observer {
+      if (it == AnimFrame()) return@Observer
+      when {
+        it.source != "" -> replace(it.source)
+        it.poster2 != "" -> replaceMp4(it.source2)
+      }
+      viewModel.animFrame.value = AnimFrame()
+    })
     doAsync { mWatchHistoryDao.insert(WatchHistory(animList)) }
   }
 
